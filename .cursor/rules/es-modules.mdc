@@ -1,0 +1,25 @@
+---
+description: Enforce ES module syntax in NodeExpressDeploy — no require(), always include .js on local imports
+globs: NodeExpressDeploy/**/*.js
+alwaysApply: false
+---
+
+# ES Modules
+
+This project uses `"type": "module"`. CommonJS is not supported.
+
+## Import Rules
+
+```js
+// ❌ BAD
+const express = require('express')
+import auth from './middleware/auth'
+
+// ✅ GOOD
+import express from 'express'
+import auth from './middleware/auth.js'
+```
+
+- Always include `.js` extension on local file imports
+- `require()` is never allowed
+- Dynamic `import()` is fine when needed

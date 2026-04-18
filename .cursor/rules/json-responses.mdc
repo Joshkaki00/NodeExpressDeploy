@@ -1,0 +1,35 @@
+---
+description: Enforce JSON-only responses and correct status codes in NodeExpressDeploy routes
+globs: NodeExpressDeploy/**/*.js
+alwaysApply: false
+---
+
+# JSON Response Conventions
+
+Every route handler must respond with JSON. No plain text, no HTML.
+
+## Status Codes
+
+```js
+// ❌ BAD
+res.send('OK')
+res.status(200).json({ ... })  // wrong status for POST creation
+res.status(500).json({ ... })  // never return 500 manually
+
+// ✅ GOOD — validation failure
+res.status(400).json({ error: "name, email and message are required" })
+
+// ✅ GOOD — POST success
+res.status(201).json({ success: true, data: { name, email, message } })
+
+// ✅ GOOD — auth failure
+res.status(401).json({ error: "Unauthorized" })
+```
+
+## Body Destructuring
+
+Always guard against missing body:
+
+```js
+const { name, email, message } = req.body || {}
+```

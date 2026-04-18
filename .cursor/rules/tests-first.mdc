@@ -1,0 +1,36 @@
+---
+description: Enforce test-first development and node:test conventions in NodeExpressDeploy tests
+globs: NodeExpressDeploy/tests/**
+alwaysApply: false
+---
+
+# Test-First Development
+
+Write the failing test before writing any implementation. Never write implementation code first.
+
+## Framework
+
+Use Node.js built-in test runner only — no Jest, no Mocha, no Vitest.
+
+```js
+// ✅ GOOD
+import { test, describe } from 'node:test'
+import assert from 'node:assert/strict'
+
+// ❌ BAD
+import { expect, describe, it } from '@jest/globals'
+```
+
+## Test File Naming
+
+| What's tested | File |
+|---|---|
+| Existing routes (characterization) | `tests/routes.test.js` |
+| Auth middleware | `tests/auth.test.js` |
+
+## Order of Operations
+
+1. Write the test — it must fail
+2. Run `npm test` and confirm the failure
+3. Write the minimum implementation to make it pass
+4. Run `npm test` again — all tests must be green before committing
