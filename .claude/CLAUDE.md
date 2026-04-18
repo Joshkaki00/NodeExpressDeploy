@@ -13,11 +13,12 @@ Minimal Express 5 JSON API. Four routes, one file, deployed on Vercel. The featu
 
 ## Key Files
 
-- Entry point and all routes: `NodeExpressDeploy/index.js`
-- JWT middleware (to be built): `NodeExpressDeploy/middleware/auth.js`
-- Tests: `NodeExpressDeploy/tests/`
-- Deployment config: `NodeExpressDeploy/vercel.json`
-- Dependency manifest: `NodeExpressDeploy/package.json`
+- Server entry (listen only): `index.js`
+- Express app + all routes: `app.js`
+- JWT auth middleware: `middleware/auth.js`
+- Tests: `tests/`
+- Deployment config: `vercel.json`
+- Dependency manifest: `package.json`
 
 ## Conventions
 
