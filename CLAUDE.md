@@ -54,4 +54,4 @@ Auth middleware is applied per-route (`app.post('/contact', authMiddleware, hand
 
 ## Agent Scope
 
-For route and middleware work, read `.claude/AGENTS.md` first.
+For route and middleware work, read `AGENTS.md` first.
