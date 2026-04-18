@@ -10,7 +10,7 @@ Single-file Express 5 JSON API. All routes in `index.js`. JWT middleware lives i
 
 1. Read `index.js` in full — it's 55 lines, no excuse to skip it
 2. Run `npm test` and confirm baseline before making any change
-3. Check `CLAUDE.md` at repo root for project-wide conventions
+3. Check `.claude/CLAUDE.md` for project-wide conventions
 
 ## Route Conventions
 
