@@ -44,4 +44,4 @@ npm test           # run tests
 
 ## Agent Scope
 
-For route and middleware work, read `NodeExpressDeploy/AGENTS.md` first.
+For route and middleware work, read `.claude/AGENTS.md` first.
