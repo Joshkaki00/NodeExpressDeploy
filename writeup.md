@@ -75,3 +75,118 @@ Ran a small agent task: "Add a new GET /status route." Observed:
 **Approach:** Test-first. Wrote failing tests in `tests/auth.test.js` before touching `index.js` or creating `middleware/auth.js`.
 
 **Result:** All characterization tests (existing routes) pass. All new auth tests pass.
+
+---
+
+## Stretch — Architecture Diagram
+
+### Request Flow
+
+```
+HTTP Request
+     │
+     ▼
+┌─────────────────────────────────────────────┐
+│  index.js  (server entry — not testable)    │
+│  app.listen(process.env.PORT || 8080)       │
+└──────────────────┬──────────────────────────┘
+                   │ imports
+                   ▼
+┌─────────────────────────────────────────────┐
+│  app.js  (testable Express app)             │
+│  express.json() ← body parsing middleware  │
+│                                             │
+│  GET  /          → inline handler           │
+│  GET  /about     → inline handler           │
+│  GET  /contact   → inline handler           │
+│  POST /contact   → authMiddleware → handler │
+└──────────────────┬──────────────────────────┘
+                   │ imports
+                   ▼
+┌─────────────────────────────────────────────┐
+│  middleware/auth.js                         │
+│  reads: req.headers['authorization']        │
+│  verifies: jwt.verify(token, JWT_SECRET)    │
+│  passes: next()  OR  401 Unauthorized       │
+└─────────────────────────────────────────────┘
+```
+
+### File Dependency Map
+
+```
+index.js
+  └── app.js
+        └── middleware/auth.js
+                └── jsonwebtoken (npm)
+
+tests/routes.test.js  ──► app.js
+tests/auth.test.js    ──► app.js
+                           └── middleware/auth.js
+```
+
+### Key Architectural Decisions
+
+| Decision | Rationale |
+|---|---|
+| Extract `app.js` from `index.js` | Tests need to `import` the Express app without triggering `app.listen()` |
+| Auth scoped to `POST /contact` only | GET routes are public; applying auth globally would break them |
+| No try/catch in route handlers | Express 5 propagates async errors to the error handler natively |
+| `JWT_SECRET` from env only | Never hardcode secrets; test suite uses a local `TEST_SECRET` const, not app env |
+
+---
+
+## Stretch — Before/After: Context Tuning Evidence
+
+### Test: "Add a GET /status route"
+
+This task was run twice — once before rules were active, once after. Same prompt, same model.
+
+#### Before rules (no `.cursor/rules/`, no `AGENTS.md` in scope)
+
+Agent output:
+
+```js
+// Agent added to index.js
+app.get('/status', (req, res) => {
+  res.send('OK')  // ❌ plain text, not JSON
+})
+```
+
+No test file was created. The agent moved directly to implementation.
+
+#### After rules (`json-responses.mdc` + `tests-first.mdc` active)
+
+Agent created `tests/status.test.js` first:
+
+```js
+import { test } from 'node:test'           // ✅ node:test, not Jest
+import assert from 'node:assert/strict'
+import app from '../app.js'
+
+test('GET /status returns 200 JSON', async () => {
+  const res = await app.inject('/status')  // failed — route doesn't exist yet
+  assert.equal(res.statusCode, 200)
+  assert.deepEqual(JSON.parse(res.body), { status: 'ok' })
+})
+```
+
+Then implementation in `app.js`:
+
+```js
+app.get('/status', (req, res) => {
+  res.json({ status: 'ok' })  // ✅ res.json(), not res.send()
+})
+```
+
+#### What changed
+
+| Behavior | Before | After |
+|---|---|---|
+| Test written first | No | Yes |
+| Response format | `res.send('string')` | `res.json({...})` |
+| Test framework | None | `node:test` |
+| Rule that enforced it | — | `json-responses.mdc`, `tests-first.mdc` |
+
+### CLAUDE.md refinement
+
+Early draft included a full table of route return shapes. Removed it after the agent ignored it in favor of reading `app.js` directly. Replaced with a pointer: *"See app.js for route return shapes."* — shorter, never goes stale.

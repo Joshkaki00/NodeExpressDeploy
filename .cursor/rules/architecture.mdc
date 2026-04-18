@@ -1,0 +1,45 @@
+---
+description: Enforce architectural constraints in NodeExpressDeploy — separation of app/server, middleware placement, and module boundaries
+globs: NodeExpressDeploy/**/*.js
+alwaysApply: false
+---
+
+# Architectural Constraints
+
+## app.js vs index.js — never merge them
+
+`app.js` exports the Express app for testing. `index.js` is the server entry point.
+
+```js
+// ✅ app.js — testable, no side effects
+import express from 'express'
+const app = express()
+// ... routes ...
+export default app
+
+// ✅ index.js — server entry only
+import app from './app.js'
+app.listen(process.env.PORT || 8080)
+```
+
+- Never call `app.listen()` inside `app.js`
+- Never import routes or middleware directly in `index.js` — that's `app.js`'s job
+- Tests always import from `app.js`, never from `index.js`
+
+## Middleware placement
+
+Auth middleware belongs in `middleware/` and is applied per-route, not globally.
+
+```js
+// ✅ GOOD — scoped to the route that needs it
+app.post('/contact', authMiddleware, handler)
+
+// ❌ BAD — applies auth to all routes including GET /
+app.use(authMiddleware)
+```
+
+## Module boundaries
+
+- One concern per file: `middleware/auth.js` handles auth only
+- No business logic in middleware — validate the token, call `next()` or return 401, nothing else
+- Route handlers do not import `jsonwebtoken` directly — that's the middleware's job
