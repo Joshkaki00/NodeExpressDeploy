@@ -6,16 +6,17 @@ Brownfield exercise: explore an unfamiliar Express 5 codebase, document it, then
 
 **Chosen path:** Express.js Starter — add authentication middleware with JWT
 
-**Codebase:** [`NodeExpressDeploy/`](./NodeExpressDeploy/) — a minimal JSON API with 4 routes, deployed on Vercel.
+**Codebase:** Minimal JSON API with 4 routes, deployed on Vercel.
 
 ## Quickstart
 
 ```bash
-cd NodeExpressDeploy
 npm install
 npm start          # http://localhost:8080
 npm test           # run test suite
 ```
+
+Set `JWT_SECRET` in your environment before starting the server. Tests set it themselves.
 
 ## Routes
 
@@ -28,8 +29,8 @@ npm test           # run test suite
 
 ## Feature: JWT Auth Middleware
 
-POST `/contact` requires a valid JWT in the `Authorization: Bearer <token>` header. See [`NodeExpressDeploy/middleware/auth.js`](./NodeExpressDeploy/middleware/auth.js) for implementation and [`NodeExpressDeploy/AGENTS.md`](./NodeExpressDeploy/AGENTS.md) for agent-scoped instructions.
+`POST /contact` requires a valid JWT in the `Authorization: Bearer <token>` header. See [`middleware/auth.js`](./middleware/auth.js) for implementation and [`AGENTS.md`](./AGENTS.md) for agent-scoped instructions.
 
 ## Deploy
 
-Vercel config in [`NodeExpressDeploy/vercel.json`](./NodeExpressDeploy/vercel.json). Set `JWT_SECRET` as an environment variable before deploying.
+Vercel config in [`vercel.json`](./vercel.json). Set `JWT_SECRET` as an environment variable in the Vercel dashboard before deploying.
