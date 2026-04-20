@@ -10,11 +10,11 @@ Used Cursor agent scan of the full workspace. No files read manually before runn
 
 **Codebase snapshot (April 17, 2026):**
 
-- `NodeExpressDeploy/index.js` — 55 lines, all route logic, no separate modules
+- `index.js` — server entry only; all route logic was in a single file, no separate modules
 - One dependency: `express ^5.2.1` (ES modules, `"type": "module"`)
 - No tests — `npm test` exits with error immediately
 - Vercel deployment config uses `@vercel/node` with a catch-all route to `index.js`
-- Nested `.git` inside `NodeExpressDeploy/` — this is a fork of an upstream repo, not a subtree
+- Forked repo with its own `.git` history
 
 **Architecture:** Flat. No routers, no controllers, no services, no middleware. Single entry point handles everything.
 
@@ -32,7 +32,7 @@ Used Cursor agent scan of the full workspace. No files read manually before runn
 ### What I Documented
 
 - `CLAUDE.md` — tech stack, conventions, key file pointers, gotchas
-- `NodeExpressDeploy/AGENTS.md` — scoped: route conventions, middleware pattern, import rules, test rules, what not to do
+- `AGENTS.md` — scoped: route conventions, middleware pattern, import rules, test rules, what not to do
 
 ---
 
@@ -42,9 +42,9 @@ Used Cursor agent scan of the full workspace. No files read manually before runn
 
 3 Cursor rules created in `.cursor/rules/`:
 
-1. **`es-modules.mdc`** — glob: `NodeExpressDeploy/**/*.js` — enforces `.js` extension on local imports, bans `require()`
-2. **`json-responses.mdc`** — glob: `NodeExpressDeploy/**/*.js` — enforces JSON-only responses, 400/201 status conventions
-3. **`tests-first.mdc`** — glob: `NodeExpressDeploy/tests/**` — enforces `node:test` + `node:assert`, test-before-implementation order, no Jest/Mocha
+1. **`es-modules.mdc`** — glob: `**/*.js` — enforces `.js` extension on local imports, bans `require()`
+2. **`json-responses.mdc`** — glob: `**/*.js` — enforces JSON-only responses, 400/201 status conventions
+3. **`tests-first.mdc`** — glob: `tests/**` — enforces `node:test` + `node:assert`, test-before-implementation order, no Jest/Mocha
 
 ### Testing Rules
 
@@ -54,7 +54,7 @@ Ran a small agent task: "Add a new GET /status route." Observed:
 
 ### Refinements
 
-- Added "What Not To Do" section to `NodeExpressDeploy/AGENTS.md` after observing agent try to move `app.listen()` into a conditional
+- Added "What Not To Do" section to `AGENTS.md` after observing agent try to move `app.listen()` into a conditional
 - Kept `CLAUDE.md` under 60 lines — removed an early draft section that listed all route return shapes (too much detail, went stale immediately)
 
 ---
@@ -63,7 +63,7 @@ Ran a small agent task: "Add a new GET /status route." Observed:
 
 ### Feature: JWT Auth on POST /contact
 
-**Spec:** See `NodeExpressDeploy/middleware/auth.js` and `NodeExpressDeploy/tests/auth.test.js`.
+**Spec:** See `middleware/auth.js` and `tests/auth.test.js`.
 
 **Acceptance criteria:**
 - `POST /contact` with valid `Authorization: Bearer <token>` → 201 (existing behavior unchanged)
@@ -72,7 +72,7 @@ Ran a small agent task: "Add a new GET /status route." Observed:
 - All other routes (`GET /`, `GET /about`, `GET /contact`) unaffected — no auth required
 - `JWT_SECRET` read from environment, never hardcoded
 
-**Approach:** Test-first. Wrote failing tests in `tests/auth.test.js` before touching `index.js` or creating `middleware/auth.js`.
+**Approach:** Test-first. Wrote failing tests in `tests/auth.test.js` before creating `middleware/auth.js` or wiring it into `app.js`.
 
 **Result:** All characterization tests (existing routes) pass. All new auth tests pass.
 
